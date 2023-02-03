@@ -6,9 +6,16 @@ class NumberTrivia extends Equatable {
   final int number;
 
   NumberTrivia({
-    @required this.text,
-    @required this.number,
+    required this.text,
+    required this.number,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'text': text,
+      'number': number,
+    };
+  }
 
   @override
   List<Object> get props => [text, number];

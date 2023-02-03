@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
+import 'package:sotra_scan_mobile/features/number_trivia/data/models/number_trivia_model.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/exceptions.dart';
@@ -17,9 +18,9 @@ class NumberTriviaRepositoryImpl implements NumberTriviaRepository {
   final NetworkInfo networkInfo;
 
   NumberTriviaRepositoryImpl({
-    @required this.remoteDataSource,
-    @required this.localDataSource,
-    @required this.networkInfo,
+    required this.remoteDataSource,
+    required this.localDataSource,
+    required this.networkInfo,
   });
 
   @override
@@ -41,21 +42,22 @@ class NumberTriviaRepositoryImpl implements NumberTriviaRepository {
   Future<Either<Failure, NumberTrivia>> _getTrivia(
     _ConcreteOrRandomChooser getConcreteOrRandom,
   ) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final remoteTrivia = await getConcreteOrRandom();
-        localDataSource.cacheNumberTrivia(remoteTrivia);
-        return Right(remoteTrivia);
-      } on ServerException {
-        return Left(ServerFailure());
-      }
-    } else {
-      try {
-        final localTrivia = await localDataSource.getLastNumberTrivia();
-        return Right(localTrivia);
-      } on CacheException {
-        return Left(CacheFailure());
-      }
+    // if (await networkInfo.isConnected) {
+    try {
+      final remoteTrivia = await getConcreteOrRandom();
+      final convertedTrivia = NumberTriviaModel.fromJson(remoteTrivia.toJson());
+      localDataSource.cacheNumberTrivia(convertedTrivia);
+      return Right(remoteTrivia);
+    } on ServerException {
+      return Left(ServerFailure());
     }
+    // } else {
+    // try {
+    //   final localTrivia = await localDataSource.getLastNumberTrivia();
+    //   return Right(localTrivia);
+    // } on CacheException {
+    //   return Left(CacheFailure());
+    // }
+    // }
   }
 }
